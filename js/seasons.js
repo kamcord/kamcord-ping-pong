@@ -1,6 +1,6 @@
 $(document).ready(function()
 {
-    new Firebase("https://crackling-fire-6808.firebaseio.com/ping-pong/").on("value", handleData);
+    new Firebase("https://kamcord-ping-pong.firebase.com/ping-pong/").on("value", handleData);
     var seasonId = getQueryParams(document.location.search).s;
     addSeasonQueryParams(seasonId);
 });

@@ -4,7 +4,7 @@ var sort_by_doubles = true;
 $(document).ready(function()
 {
     var seasonId = getQueryParams(document.location.search).s;
-    var pingPongRef = new Firebase("https://crackling-fire-6808.firebaseio.com/ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : ""));
+    var pingPongRef = new Firebase("https://kamcord-ping-pong.firebase.com/ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : ""));
     pingPongRef.on("value", handleRankings);
 
     $("#season").hide();
@@ -149,7 +149,7 @@ function setShowHideInactive()
 
 function submitNewSeason(seasonName)
 {
-    var ref = new Firebase("https://crackling-fire-6808.firebaseio.com/ping-pong/");
+    var ref = new Firebase("https://kamcord-ping-pong.firebase.com/ping-pong/");
     var email = $("#username_input").val();
     var password = $("#password_input").val();
     ref.authWithPassword({"email":email, "password": password}, function(error, authData)
@@ -161,7 +161,7 @@ function submitNewSeason(seasonName)
             else
             {
                 console.log("Login succeeded with authData: ", authData);
-                var pingPongRef = new Firebase("https://crackling-fire-6808.firebaseio.com/ping-pong");
+                var pingPongRef = new Firebase("https://kamcord-ping-pong.firebase.com/ping-pong");
                 pingPongRef.once('value', function(snapshot) {
                     var data = snapshot.val();
                     data['seasonName'] = seasonName;

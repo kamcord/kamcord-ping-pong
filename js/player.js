@@ -2,7 +2,7 @@ $(document).ready(function()
 {
     initChart();
     var seasonId = getQueryParams(document.location.search).s;
-    var pingPongRef = new Firebase("https://crackling-fire-6808.firebaseio.com/ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : ""));
+    var pingPongRef = new Firebase("https://kamcord-ping-pong.firebase.com/ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : ""));
 
     var name = getQueryParams(document.location.search).n;
     $("title").html(name);
