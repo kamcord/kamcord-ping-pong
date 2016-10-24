@@ -3,7 +3,18 @@
     <head>
         <link rel="stylesheet" type="text/css" href="css/main.css">
         <link rel="stylesheet" type="text/css" href="css/rankings.css">
-        <script type='text/javascript' src='https://cdn.firebase.com/js/client/2.0.6/firebase.js'></script>
+        <script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
+        <script>
+          // Initialize Firebase
+          var config = {
+            apiKey: "AIzaSyBNWx6kIbZiw2_WVUBGgWPzo249L3B8Rys",
+            authDomain: "kamcord-ping-pong.firebaseapp.com",
+            databaseURL: "https://kamcord-ping-pong.firebaseio.com",
+            storageBucket: "kamcord-ping-pong.appspot.com",
+            messagingSenderId: "474597446650"
+          };
+          firebase.initializeApp(config);
+        </script>
         <script type='text/javascript' src='js/jquery-2.1.1.min.js'></script>
         <script type='text/javascript' src='js/elo.js'></script>
         <script type='text/javascript' src='js/rankings.js'></script>
