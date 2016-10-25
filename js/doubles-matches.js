@@ -270,7 +270,6 @@ function submitNewMatch()
         var team2Score = $(sets[s]).children(".team2");
         match['sets'].push("{0}-{1}".format(team1Score.val(), team2Score.val()));
     }
-    console.log(match);
     var matchRef = firebase.database().ref("ping-pong/doubles-pending").push(match);
     matchRef.update({'timestamp': firebase.database.ServerValue.TIMESTAMP})
     $("#new_match_background").fadeOut(200);
@@ -354,7 +353,6 @@ function acceptPendingMatch(key, match)
 }
 
 function shake(element, iterations, count, offset, delay) {
-    console.log("shaking");
     var left = parseInt(element.css("left"));
     var dLeft = 0;
     if (count == iterations) {
