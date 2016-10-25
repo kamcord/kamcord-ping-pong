@@ -127,7 +127,6 @@ function initClickHandlers()
     });
     $("#end_season_close_auth,#cancel").on("click", function()
     {
-        firebase.auth().signOut();
         $("#end_season_auth_background").fadeOut(200);
     });
     $("#close_sign_in").on("click", function()
