@@ -160,6 +160,35 @@
     cursor: pointer;
 }
 
+#sign_in_buttons {
+    display: inline-block;
+    margin: 0px;
+    padding: 0px;
+    width: 600px;
+    font-size: 0px;
+}
+
+#sign_in_buttons > li {
+    display: inline-block;
+    width: 600px;
+    text-align: center;
+    background-color: rgb(230,230,230);
+}
+
+#sign_in_buttons > li:hover {
+    background-color: #9cdbb7;
+}
+
+#sign_in_buttons > li > span {
+    display: inline-block;
+    width: 590px;
+    padding: 5px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #113420;
+    cursor: pointer;
+}
+
 .popup .auth_input
 {
     display: inline-block;
