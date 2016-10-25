@@ -4,7 +4,11 @@ var max_sets = 3;
 $(document).ready(function()
 {
     var seasonId = getQueryParams(document.location.search).s;
-    new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : "")).on("value", handleData);
+    if (seasonId) {
+        firebase.database().ref("ping-pong/seasons/" + seasonId + "/").on("value", handleData);
+    } else {
+        firebase.database().ref("ping-pong").on("value", handleData);
+    }
 
     $("#season").hide();
     $("#footer").hide();
@@ -204,6 +208,10 @@ function initClickHandlers()
     {
         $("#auth_background").fadeOut(200);
     });
+    $("#close_sign_in").on("click", function()
+    {
+        $("#sign_in_background").fadeOut(200);
+    });
     $("#submit").on("click", function()
     {
         submitNewMatch();
@@ -243,79 +251,99 @@ function submitNewMatch()
         var player2Score = $(sets[s]).children(".player2");
         match['sets'].push("{0}-{1}".format(player1Score.val(), player2Score.val()));
     }
-    var matchRef = new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/pending/").push(match);
-    matchRef.update({'timestamp': Firebase.ServerValue.TIMESTAMP})
+    var matchRef = firebase.database().ref("ping-pong/pending/").push(match);
+    matchRef.update({'timestamp': firebase.database.ServerValue.TIMESTAMP})
     $("#new_match_background").fadeOut(200);
 }
 
 function acceptPendingMatch(key, match)
 {
     $("body").scrollTop(0);
-    $("#auth_background").fadeIn(200);
-    $("#pending_match_info").html(genMatchHtml(match));
     $("#accept").off();
     $("#reject").off();
+    $("#sign_in_button").off();
+
+    $("#auth_background").fadeIn(200);
+    $("#pending_match_info").html(genMatchHtml(match));
 
     $("#accept").on("click", function()
     {
-        var ref = new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/");
-        var email = $("#username_input").val();
-        var password = $("#password_input").val();
-        ref.authWithPassword({"email":email, "password": password}, function(error, authData)
+        if (firebase.auth().currentUser) {
+            var pingpongRef = firebase.database().ref("ping-pong");
+            pingpongRef.once('value', function(snapshot) {
+                var players = Elo.readPlayers(snapshot.val());
+                var playerNames = [];
+                for( var i=0; i<players.length; i++ )
+                {
+                    playerNames.push(players[i]['name']);
+                }
+                var matchPlayerNames = [match['player1'], match['player2']];
+                for( var i=0; i<matchPlayerNames.length; i++ )
+                {
+                    if( playerNames.indexOf(matchPlayerNames[i]) == -1 )
+                    {
+                        pingpongRef.child("players").push(
+                            {'name':matchPlayerNames[i], 'rank':1500, 'doubles-rank':1500},
+                            function(error)
+                            {
+                                if( error )
+                                {
+                                    console.log("push new player failed with error: ", error);
+                                }
+                            });
+                    }
+                }
+            });
+            pingpongRef.child("matches").push(match, function(error)
             {
                 if( error )
                 {
-                    console.log("Login failed with error: ", error);
+                    console.log("push failed with error: ", error);
                 }
                 else
                 {
-                    console.log("Login succeeded with authData: ", authData);
-                    var pingpongRef = new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong");
-                    pingpongRef.once('value', function(snapshot) {
-                        var players = Elo.readPlayers(snapshot.val());
-                        var playerNames = [];
-                        for( var i=0; i<players.length; i++ )
-                        {
-                            playerNames.push(players[i]['name']);
-                        }
-                        var matchPlayerNames = [match['player1'], match['player2']];
-                        for( var i=0; i<matchPlayerNames.length; i++ )
-                        {
-                            if( playerNames.indexOf(matchPlayerNames[i]) == -1 )
-                            {
-                                pingpongRef.child("players").push(
-                                    {'name':matchPlayerNames[i], 'rank':1500, 'doubles-rank':1500},
-                                    function(error)
-                                    {
-                                        if( error )
-                                        {
-                                            console.log("push new player failed with error: ", error);
-                                        }
-                                    });
-                            }
-                        }
-                    });
-                    pingpongRef.child("matches").push(match, function(error)
-                    {
-                        if( error )
-                        {
-                            console.log("push failed with error: ", error);
-                        }
-                        else
-                        {
-                            pingpongRef.child("pending").child(key).remove();
-                        }
-                    });
+                    pingpongRef.child("pending").child(key).remove();
                 }
             });
-        $("#auth_background").fadeOut(200);
+            $("#auth_background").fadeOut(200);
+        } else {
+            $("#sign_in_background").fadeIn(200);
+            $("#username_input").focus();
+            $("#sign_in_button").on("click", function() {
+                var email = $("#username_input").val();
+                var password = $("#password_input").val();
+                firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
+                    $("#sign_in_background").fadeOut(200);
+                }, function(error) {
+                    shake($("#sign_in"), 7, 7, 25, 50);
+                });
+            });
+        }
     });
 
     $("#reject").on("click", function()
     {
-        new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/pending").child(key).remove();
+        firebase.database().ref("ping-pong/pending").child(key).remove();
         $("#auth_background").fadeOut(200);
     });
+}
+
+function shake(element, iterations, count, offset, delay) {
+    var left = parseInt(element.css("left"));
+    var dLeft = 0;
+    if (count == iterations) {
+        dLeft = -offset / 2;
+    } else if (count == 0) {
+        dLeft = offset / 2;
+    } else {
+        dLeft = count % 2 == 0 ? offset : -offset;
+    }
+    element.css({"left": left + dLeft});
+    if (count > 0) {
+        setTimeout(function() {
+            shake(element, iterations, count - 1, offset, delay);
+        }, delay);
+    }
 }
 
 if (!String.prototype.format) {

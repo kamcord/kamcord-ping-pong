@@ -4,7 +4,7 @@ var sort_by_doubles = true;
 $(document).ready(function()
 {
     var seasonId = getQueryParams(document.location.search).s;
-    var pingPongRef = new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : ""));
+    var pingPongRef = firebase.database().ref("ping-pong/" + (seasonId ? "seasons/" + seasonId + "/" : ""));
     pingPongRef.on("value", handleRankings);
 
     $("#season").hide();
@@ -129,6 +129,10 @@ function initClickHandlers()
     {
         $("#end_season_auth_background").fadeOut(200);
     });
+    $("#close_sign_in").on("click", function()
+    {
+        $("#sign_in_background").fadeOut(200);
+    });
     $("#submit").on("click", function()
     {
         submitNewSeason($("#season_name_input").val());
@@ -149,28 +153,46 @@ function setShowHideInactive()
 
 function submitNewSeason(seasonName)
 {
-    var ref = new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/");
-    var email = $("#username_input").val();
-    var password = $("#password_input").val();
-    ref.authWithPassword({"email":email, "password": password}, function(error, authData)
-        {
-            if( error )
-            {
-                console.log("Login failed with error: ", error);
-            }
-            else
-            {
-                console.log("Login succeeded with authData: ", authData);
-                var pingPongRef = new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong");
-                pingPongRef.once('value', function(snapshot) {
-                    var data = snapshot.val();
-                    data['seasonName'] = seasonName;
-                    data['seasons'] = null;
-                    var seasonRef = pingPongRef.child("seasons").push(data);
-                    seasonRef.update({'timestamp': Firebase.ServerValue.TIMESTAMP});
-                    pingPongRef.update({'matches': null, 'doubles-matches': null, 'players': null});
-                });
-            }
+    if (firebase.auth().currentUser) {
+        var pingPongRef = firebase.database().ref("ping-pong");
+        pingPongRef.once('value', function(snapshot) {
+            var data = snapshot.val();
+            data['seasonName'] = seasonName;
+            data['seasons'] = null;
+            var seasonRef = pingPongRef.child("seasons").push(data);
+            seasonRef.update({'timestamp': firebase.database.ServerValue.TIMESTAMP});
+            pingPongRef.update({'matches': null, 'doubles-matches': null, 'players': null});
         });
-    $("#end_season_auth_background").fadeOut(200);
+        $("#end_season_auth_background").fadeOut(200);
+    } else {
+        $("#sign_in_background").fadeIn(200);
+        $("#username_input").focus();
+        $("#sign_in_button").on("click", function() {
+            var email = $("#username_input").val();
+            var password = $("#password_input").val();
+            firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
+                $("#sign_in_background").fadeOut(200);
+            }, function(error) {
+                shake($("#sign_in"), 7, 7, 25, 50);
+            });
+        });
+    }
+}
+
+function shake(element, iterations, count, offset, delay) {
+    var left = parseInt(element.css("left"));
+    var dLeft = 0;
+    if (count == iterations) {
+        dLeft = -offset / 2;
+    } else if (count == 0) {
+        dLeft = offset / 2;
+    } else {
+        dLeft = count % 2 == 0 ? offset : -offset;
+    }
+    element.css({"left": left + dLeft});
+    if (count > 0) {
+        setTimeout(function() {
+            shake(element, iterations, count - 1, offset, delay);
+        }, delay);
+    }
 }

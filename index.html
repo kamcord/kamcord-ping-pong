@@ -3,7 +3,18 @@
     <head>
         <link rel="stylesheet" type="text/css" href="css/main.css">
         <link rel="stylesheet" type="text/css" href="css/rankings.css">
-        <script type='text/javascript' src='https://cdn.firebase.com/js/client/2.0.6/firebase.js'></script>
+        <script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
+        <script>
+          // Initialize Firebase
+          var config = {
+            apiKey: "AIzaSyBNWx6kIbZiw2_WVUBGgWPzo249L3B8Rys",
+            authDomain: "kamcord-ping-pong.firebaseapp.com",
+            databaseURL: "https://kamcord-ping-pong.firebaseio.com",
+            storageBucket: "kamcord-ping-pong.appspot.com",
+            messagingSenderId: "474597446650"
+          };
+          firebase.initializeApp(config);
+        </script>
         <script type='text/javascript' src='js/jquery-2.1.1.min.js'></script>
         <script type='text/javascript' src='js/elo.js'></script>
         <script type='text/javascript' src='js/rankings.js'></script>
@@ -34,15 +45,24 @@
         <div id="end_season_auth_background" class="popup_background">
             <div id="end_season_auth" class="popup">
                 Season Name: <input id="season_name_input" type="text" />
-                <span>
-                    <span class="auth_input">Username: <input id="username_input" type="text" /></span>
-                    <span class="auth_input">Password: <input id="password_input" type="password" /></span>
-                </span>
                 <ul id="end_season_auth_buttons">
                     <li><span class="button" id="submit">Submit</span></li>
                     <li><span class="button" id="cancel">Cancel</span></li>
                 </ul>
                 <span id="end_season_close_auth" class="close_button">x</span>
+            </div>
+        </div>
+
+        <div id="sign_in_background" class="popup_background">
+            <div id="sign_in" class="popup">
+                <span>
+                    <span class="auth_input">Username: <input id="username_input" type="text" /></span>
+                    <span class="auth_input">Password: <input id="password_input" type="password" /></span>
+                </span>
+                <ul id="sign_in_buttons">
+                    <li><span class="button" id="sign_in_button">Sign In</span></li>
+                </ul>
+                <span id="close_sign_in" class="close_button">x</span>
             </div>
         </div>
     </body>

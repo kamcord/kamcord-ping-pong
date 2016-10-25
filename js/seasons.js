@@ -1,6 +1,6 @@
 $(document).ready(function()
 {
-    new Firebase("https://kamcord-ping-pong.firebaseio.com/ping-pong/").on("value", handleData);
+    firebase.database().ref("ping-pong/").on("value", handleData);
     var seasonId = getQueryParams(document.location.search).s;
     addSeasonQueryParams(seasonId);
 });
